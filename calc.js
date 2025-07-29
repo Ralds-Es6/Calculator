@@ -35,13 +35,27 @@ var bg = document.getElementsByClassName("bg");
         }
       }
       function insert(num) {
-        document.forms[0].elements.textview.value = document.forms[0].elements.textview.value + num;
+        var currentValue = document.forms[0].elements.textview.value;
+        if (currentValue === 'Error') {
+          document.forms[0].elements.textview.value = num;
+        } else {
+          document.forms[0].elements.textview.value = currentValue + num;
+        }
       }
       function equal() {
         var exp = document.forms[0].elements.textview.value;
         if(exp) {
-          exp = eval(document.forms[0].elements.textview.value);
-          document.forms[0].elements.textview.value = exp;
+          try {
+            // Safer alternative to eval - only allow basic math operations
+            var sanitized = exp.replace(/[^0-9+\-*/.() ]/g, '');
+            if (sanitized !== exp) {
+              throw new Error('Invalid characters');
+            }
+            var result = Function('"use strict"; return (' + sanitized + ')')();
+            document.forms[0].elements.textview.value = result;
+          } catch (error) {
+            document.forms[0].elements.textview.value = 'Error';
+          }
         }
       }
       function clean() {
